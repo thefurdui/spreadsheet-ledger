@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2019", "dom"],
+    "target": "ES6",
+    "module": "ESNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "downlevelIteration": true
+  },
+  "include": ["./src/**/*.ts", "utils.ts", "types.ts", "constants.ts"]
+}

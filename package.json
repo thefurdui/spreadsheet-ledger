@@ -1,0 +1,32 @@
+{
+  "name": "thebudget",
+  "version": "0.0.1",
+  "description": "Google Sheets budgeting solution",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thefurdui/thebudget.git"
+  },
+  "keywords": [
+    "budget",
+    "google sheets"
+  ],
+  "author": "Andrei Furdui",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/thefurdui/thebudget/issues"
+  },
+  "homepage": "https://github.com/thefurdui/thebudget#readme",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@types/google-apps-script": "^1.0.64",
+    "rollup": "^3.23.0",
+    "tslib": "^2.5.2",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "rollup-plugin-ts": "^3.2.0"
+  }
+}

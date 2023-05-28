@@ -1,0 +1,14 @@
+{
+  "name": "form",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "rollup --config",
+    "deploy": "clasp push",
+    "push": "yarn build && yarn deploy"
+  },
+  "author": "Andrei Furdui",
+  "license": "AGPL-3.0"
+}
