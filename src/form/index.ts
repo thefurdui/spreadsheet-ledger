@@ -197,7 +197,8 @@ const handleTransfer = (transaction: Transaction) => {
 
   const destinationAccountTransactionDetails = {
     ...transaction,
-    amount: destinationCurrencyAmount ?? transaction.amount,
+    account: destinationAccount,
+    amount: destinationCurrencyAmount || transaction.amount,
     description: `Transfer from ${originAccount}`,
     isIncome: true
   }
