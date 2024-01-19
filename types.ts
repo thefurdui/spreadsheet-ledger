@@ -28,6 +28,6 @@ export type VisibleTransactionProperty = Exclude<
   'isIncome' | 'destinationAccount' | 'commission'
 >
 
-export type TransactionAction = 'spent' | 'received' | 'reinitialised' | 'transferred'
+export type TransactionAction = 'spent' | 'received' | 'reinitialize' | 'transferred'
 export type TransactionType = 'expense' | 'income'
 export type TransactionRow = (Transaction[keyof Transaction] | null)[]

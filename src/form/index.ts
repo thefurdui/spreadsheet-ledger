@@ -70,8 +70,8 @@ const onFormSubmit = (event: FormsOnFormSubmit) => {
     case 'received':
       appendTransactionRow(transaction, 'income')
       break
-    case 'reinitialised':
-      handleReinitialisation(transaction)
+    case 'reinitialize':
+      handleReinitialization(transaction)
       break
     case 'transferred':
       handleTransfer(transaction)
@@ -79,8 +79,8 @@ const onFormSubmit = (event: FormsOnFormSubmit) => {
   }
 }
 
-// Function to handle reinitialisation action
-const handleReinitialisation = (transaction: Transaction) => {
+// Function to handle reinitialization action
+const handleReinitialization = (transaction: Transaction) => {
   const { account, amount } = transaction
 
   // Get the range for the accounts and their amounts
@@ -115,7 +115,7 @@ const handleReinitialisation = (transaction: Transaction) => {
   const adjustedTransactionDetails = {
     ...transaction,
     category: REINIT_CATEGORY,
-    description: "Account's balance reinitialised",
+    description: "Account's balance reinitialized",
     amount: diffAmount,
     beneficiary: getBeneficiaryFromAccountName(transaction.account)
   }
