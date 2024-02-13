@@ -2,22 +2,20 @@ import {
   FormsOnFormSubmit,
   Transaction,
   TransactionAction,
-  TransactionType,
   Sheet,
   TransactionRow,
-  ColumnLetter
+  ColumnLetter,
+  TransactionType
 } from '../../types'
 import {
   SPREADSHEET_ID,
   UPDATE_BALANCE_FORM_ID,
   TRANSACTIONS_SHEET_ID,
   ACTION_FIELD_ID,
-  EXPENSE_ANCHOR_COLUMN,
-  INCOME_ANCHOR_COLUMN,
+  ANCHOR_COLUMN,
   REINIT_CATEGORY,
   COMMISSION_CATEGORY,
-  columnPropertyMapIncome,
-  columnPropertyMapExpense
+  columnPropertyMapTransaction
 } from '../../constants'
 import {
   getSheetById,
@@ -51,9 +49,10 @@ const onFormSubmit = (event: FormsOnFormSubmit) => {
   const responseTransaction = Object.fromEntries(
     response.getItemResponses().map((r) => {
       const title = toCamelCase(r.getItem().getTitle())
-      // Unifying "Expense category" and "Income category" fields
-      const unifiedTitle = title.includes('Category') ? 'category' : title
-      return [unifiedTitle, r.getResponse()]
+      const response =
+        title === 'tag' ? `${r.getResponse()}`.replace(/[a-zA-Z]/gm, '') : r.getResponse()
+
+      return [title, response]
     })
   ) as unknown as Transaction
 
@@ -64,11 +63,11 @@ const onFormSubmit = (event: FormsOnFormSubmit) => {
 
   // Perform different actions based on the submitted form action
   switch (action) {
-    case 'spent':
-      appendTransactionRow(transaction, 'expense')
-      break
     case 'received':
       appendTransactionRow(transaction, 'income')
+      break
+    case 'spent':
+      appendTransactionRow(transaction, 'expense')
       break
     case 'reinitialize':
       handleReinitialization(transaction)
@@ -84,8 +83,8 @@ const handleReinitialization = (transaction: Transaction) => {
   const { account, amount } = transaction
 
   // Get the range for the accounts and their amounts
-  const accountsRange = ss.getRangeByName('Accounts')
-  const accountsAmountRange = ss.getRangeByName('AccountsAmount')
+  const accountsRange = ss.getRangeByName('BalancesAccounts')
+  const accountsAmountRange = ss.getRangeByName('BalancesAccountsAmount')
 
   if (!accountsRange || !accountsAmountRange) {
     Logger.log('Accounts or accounts amount range not found')
@@ -103,46 +102,45 @@ const handleReinitialization = (transaction: Transaction) => {
   ] as number
 
   // Check if the initial amount matches the amount in the form response
-  if (initialAmount == amount) {
-    return
-  }
+  if (initialAmount === amount) return
 
   // Calculate the difference in amounts
   const diffAmount = Math.abs(initialAmount - amount)
   const isIncome = amount > initialAmount
 
   // Adjust transaction details with the difference amount and category
-  const adjustedTransactionDetails = {
+  const adjustedTransactionDetails: Transaction = {
     ...transaction,
-    category: REINIT_CATEGORY,
+    incomeCategory: isIncome ? REINIT_CATEGORY : undefined,
+    expenseCategory: !isIncome ? REINIT_CATEGORY : undefined,
     description: "Account's balance reinitialized",
-    amount: diffAmount,
-    beneficiary: getBeneficiaryFromAccountName(transaction.account)
+    amount: diffAmount
   }
 
-  const transactionDetailsRow = getTransactionDetailsRow(adjustedTransactionDetails, isIncome)
+  const transactionDetailsRow = getTransactionDetailsRow(adjustedTransactionDetails)
 
   // Append a transaction row based on the difference amount
   appendTransactionRow(transactionDetailsRow, isIncome ? 'income' : 'expense')
 }
 
 // Function to append a transaction row to the transactions sheet
-const appendTransactionRow = (transaction: Transaction, transactionType: TransactionType) => {
+const appendTransactionRow = (transaction: Transaction, type: TransactionType) => {
   if (!transactionsSheet) {
     Logger.log('Transactions sheet not found')
     return
   }
 
   const columnLetters = getColumnLetters(transactionsSheet)
-  const columnPropertyMap =
-    transactionType == 'income' ? columnPropertyMapIncome : columnPropertyMapExpense
-  const anchorColumn = transactionType == 'income' ? INCOME_ANCHOR_COLUMN : EXPENSE_ANCHOR_COLUMN
+  const columnPropertyMap = columnPropertyMapTransaction
+  const anchorColumn = ANCHOR_COLUMN
 
   // Create a row array based on the transaction details and column mappings
   const row: TransactionRow = columnLetters
     .map((letter) => {
       const columnProperty = columnPropertyMap.get(letter)
-      return columnProperty ? transaction[columnProperty] : null
+      let cellValue = columnProperty ? transaction[columnProperty] : null
+      if (columnProperty === 'amount' && type === 'expense' && cellValue) cellValue = -cellValue
+      return cellValue
     })
     .filter((cell) => cell !== null)
 
@@ -185,30 +183,30 @@ const getBeneficiaryFromAccountName = (accountName: string) => {
 const handleTransfer = (transaction: Transaction) => {
   const {
     account: originAccount,
-    destinationAccount,
+    destinationAccount = '',
     commission,
     destinationCurrencyAmount
   } = transaction
 
-  const originAccountTransactionDetails = {
+  const originAccountTransactionDetails: Transaction = {
     ...transaction,
-    description: `Transfer to ${destinationAccount}`
+    description: `Transfer to ${destinationAccount}`,
+    amount: -transaction.amount
   }
 
-  const destinationAccountTransactionDetails = {
+  const destinationAccountTransactionDetails: Transaction = {
     ...transaction,
     account: destinationAccount,
     amount: destinationCurrencyAmount || transaction.amount,
-    description: `Transfer from ${originAccount}`,
-    isIncome: true
+    description: `Transfer from ${originAccount}`
   }
 
-  const commissionTransactionDetails = commission
+  const commissionTransactionDetails: Transaction | null = commission
     ? {
         ...transaction,
-        amount: commission,
+        amount: -commission,
         description: `Commission for transfer from ${originAccount} to ${destinationAccount}`,
-        category: COMMISSION_CATEGORY
+        expenseCategory: COMMISSION_CATEGORY
       }
     : null
 
@@ -219,8 +217,9 @@ const handleTransfer = (transaction: Transaction) => {
   ]
     .filter((td) => td !== null)
     .forEach((td) => {
-      const { isIncome } = td as Transaction
-      const transactionDetailsRow = getTransactionDetailsRow(td as Transaction, isIncome)
+      const { amount } = td as Transaction
+      const isIncome = amount > 0
+      const transactionDetailsRow = getTransactionDetailsRow(td as Transaction)
       appendTransactionRow(transactionDetailsRow, isIncome ? 'income' : 'expense')
     })
 }

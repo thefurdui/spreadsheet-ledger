@@ -1,4 +1,4 @@
-import { columnPropertyMapExpense, columnPropertyMapIncome } from './constants'
+import { columnPropertyMapTransaction } from './constants'
 import { Spreadsheet, Range, Sheet, ColumnLetter, Transaction } from './types'
 
 // Function to get a sheet by its ID
@@ -42,8 +42,8 @@ export const getFirstEmptyRowNumber = (sheet: Sheet, anchorColumn: ColumnLetter 
 }
 
 // Function to filter out spare transaction details and get transaction details row
-export const getTransactionDetailsRow = (transaction: Transaction, isIncome?: boolean) => {
-  const dataMap = isIncome ? columnPropertyMapIncome : columnPropertyMapExpense
+export const getTransactionDetailsRow = (transaction: Transaction) => {
+  const dataMap = columnPropertyMapTransaction
   const transactionDetailsLabels = Array.from(dataMap.values())
 
   const transactionDetailsEntries = transactionDetailsLabels.map((label) => [

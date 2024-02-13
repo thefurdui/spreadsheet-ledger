@@ -13,8 +13,7 @@ export const TRANSACTIONS_SHEET_ID = 1732160294
 export const ACTION_FIELD_ID = 174839173
 
 // Define the anchor columns for income and expense entries
-export const EXPENSE_ANCHOR_COLUMN = 'B'
-export const INCOME_ANCHOR_COLUMN = 'I'
+export const ANCHOR_COLUMN = 'B'
 
 // Define the categories used for special transaction types
 export const REINIT_CATEGORY = '❖ Missing'
@@ -23,11 +22,11 @@ export const COMMISSION_CATEGORY = '❖ Commission'
 // Define the ID of the balances sheet
 export const BALANCES_SHEET_ID = 765911459
 // Define the range name for the accounts
-export const ACCOUNTS_RANGE_NAME = 'Accounts'
+export const ACCOUNTS_RANGE_NAME = 'BalancesAccounts'
 // Define the range name for the expense categories
-export const EXPENSE_CATEGORIES_RANGE_NAME = 'ExpenseCategories'
+export const EXPENSE_CATEGORIES_RANGE_NAME = 'OverviewExpenseCategories'
 // Define the range name for the income categories
-export const INCOME_CATEGORIES_RANGE_NAME = 'IncomeCategories'
+export const INCOME_CATEGORIES_RANGE_NAME = 'OverviewIncomeCategories'
 
 // Define the field IDs for the form items
 export const ORIGIN_ACCOUNT_FIELD_ID = 1832671484
@@ -36,22 +35,14 @@ export const ACCOUNT_FIELDS_IDS = [ORIGIN_ACCOUNT_FIELD_ID, DESTINATION_ACCOUNT_
 export const EXPENSE_CATEGORY_FIELD_ID = 1943381995
 export const INCOME_CATEGORY_FIELD_ID = 709409363
 
-// Map to convert column letters to data keys for expense transactions
-export const columnPropertyMapExpense = new Map<ColumnLetter, VisibleTransactionProperty>([
+// Map to convert column letters to data keys for transactions
+export const columnPropertyMapTransaction = new Map<ColumnLetter, VisibleTransactionProperty>([
   ['B', 'date'],
   ['C', 'amount'],
   ['D', 'account'],
   ['E', 'beneficiary'],
-  ['F', 'description'],
-  ['G', 'category']
-])
-
-// Map to convert column letters to data keys for income transactions
-export const columnPropertyMapIncome = new Map<ColumnLetter, VisibleTransactionProperty>([
-  ['I', 'date'],
-  ['J', 'amount'],
-  ['K', 'account'],
-  ['L', 'beneficiary'],
-  ['M', 'description'],
-  ['N', 'category']
+  ['F', 'tag'],
+  ['G', 'description'],
+  ['H', 'incomeCategory'],
+  ['I', 'expenseCategory']
 ])

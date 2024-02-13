@@ -15,9 +15,10 @@ export interface Transaction {
   amount: number
   account: string
   beneficiary?: string
-  category?: string
+  tag?: string
+  expenseCategory?: string
+  incomeCategory?: string
   description?: string
-  isIncome?: boolean
   destinationAccount?: string
   commission?: number
   destinationCurrencyAmount?: number
