@@ -4,8 +4,7 @@ import {
   TransactionAction,
   Sheet,
   TransactionRow,
-  ColumnLetter,
-  TransactionType
+  ColumnLetter
 } from '../../types'
 import {
   SPREADSHEET_ID,
@@ -64,10 +63,11 @@ const onFormSubmit = (event: FormsOnFormSubmit) => {
   // Perform different actions based on the submitted form action
   switch (action) {
     case 'received':
-      appendTransactionRow(transaction, 'income')
+      appendTransactionRow(transaction)
       break
     case 'spent':
-      appendTransactionRow(transaction, 'expense')
+      transaction.amount = -transaction.amount
+      appendTransactionRow(transaction)
       break
     case 'reinitialize':
       handleReinitialization(transaction)
@@ -114,17 +114,17 @@ const handleReinitialization = (transaction: Transaction) => {
     incomeCategory: isIncome ? REINIT_CATEGORY : undefined,
     expenseCategory: !isIncome ? REINIT_CATEGORY : undefined,
     description: "Account's balance reinitialized",
-    amount: diffAmount
+    amount: isIncome ? diffAmount : -diffAmount
   }
 
   const transactionDetailsRow = getTransactionDetailsRow(adjustedTransactionDetails)
 
   // Append a transaction row based on the difference amount
-  appendTransactionRow(transactionDetailsRow, isIncome ? 'income' : 'expense')
+  appendTransactionRow(transactionDetailsRow)
 }
 
 // Function to append a transaction row to the transactions sheet
-const appendTransactionRow = (transaction: Transaction, type: TransactionType) => {
+const appendTransactionRow = (transaction: Transaction) => {
   if (!transactionsSheet) {
     Logger.log('Transactions sheet not found')
     return
@@ -138,9 +138,7 @@ const appendTransactionRow = (transaction: Transaction, type: TransactionType) =
   const row: TransactionRow = columnLetters
     .map((letter) => {
       const columnProperty = columnPropertyMap.get(letter)
-      let cellValue = columnProperty ? transaction[columnProperty] : null
-      if (columnProperty === 'amount' && type === 'expense' && cellValue) cellValue = -cellValue
-      return cellValue
+      return columnProperty ? transaction[columnProperty] : null
     })
     .filter((cell) => cell !== null)
 
@@ -163,20 +161,6 @@ const appendRow = (sheet: Sheet, anchorColumn: ColumnLetter, row: TransactionRow
   sheet
     .getRange(`${anchorColumn}${firstEmptyRowNumber}:${lastColumn}${firstEmptyRowNumber}`)
     .setValues([row])
-}
-
-// Function to get beneficiary from Account name
-const getBeneficiaryFromAccountName = (accountName: string) => {
-  const accountFirstLetter = accountName[0]
-  if (accountFirstLetter === 'A') {
-    return 'Andrei'
-  }
-
-  if (accountFirstLetter === 'Y') {
-    return 'Yasmin'
-  }
-
-  return ''
 }
 
 // Function to handle money transfer from one account to another
@@ -214,12 +198,10 @@ const handleTransfer = (transaction: Transaction) => {
     originAccountTransactionDetails,
     destinationAccountTransactionDetails,
     commissionTransactionDetails
-  ]
-    .filter((td) => td !== null)
-    .forEach((td) => {
-      const { amount } = td as Transaction
-      const isIncome = amount > 0
-      const transactionDetailsRow = getTransactionDetailsRow(td as Transaction)
-      appendTransactionRow(transactionDetailsRow, isIncome ? 'income' : 'expense')
-    })
+  ].forEach((td) => {
+    if (!td) return
+    const { amount } = td as Transaction
+    const transactionDetailsRow = getTransactionDetailsRow(td as Transaction)
+    appendTransactionRow(transactionDetailsRow)
+  })
 }
