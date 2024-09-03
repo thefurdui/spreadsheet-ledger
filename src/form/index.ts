@@ -40,7 +40,9 @@ const actionField = form.getItemById(ACTION_FIELD_ID)
 // Function to handle form submission
 const onFormSubmit = (event: FormsOnFormSubmit) => {
   const { response } = event
-  const actionFieldResponse = response.getResponseForItem(actionField).getResponse() as string
+  const actionFieldResponse = response
+    .getResponseForItem(actionField)
+    .getResponse() as string
 
   const action = actionFieldResponse.toLowerCase() as TransactionAction
 
@@ -49,7 +51,9 @@ const onFormSubmit = (event: FormsOnFormSubmit) => {
     response.getItemResponses().map((r) => {
       const title = toCamelCase(r.getItem().getTitle())
       const response =
-        title === 'tag' ? `${r.getResponse()}`.replace(/[a-zA-Z]/gm, '') : r.getResponse()
+        title === 'tag'
+          ? `${r.getResponse()}`.replace(/[a-zA-Z]/gm, '')
+          : r.getResponse()
 
       return [title, response]
     })
@@ -92,9 +96,10 @@ const handleReinitialization = (transaction: Transaction) => {
   }
 
   // Find the index of the referred account in the accounts range
-  const referredAccountIndex = getValuesFromRange(accountsRange, true).findIndex(
-    (a) => a === account
-  )
+  const referredAccountIndex = getValuesFromRange(
+    accountsRange,
+    true
+  ).findIndex((a) => a === account)
 
   // Get the initial amount for the referred account
   const initialAmount = getValuesFromRange(accountsAmountRange, true)[
@@ -113,11 +118,13 @@ const handleReinitialization = (transaction: Transaction) => {
     ...transaction,
     incomeCategory: isIncome ? REINIT_CATEGORY : undefined,
     expenseCategory: !isIncome ? REINIT_CATEGORY : undefined,
-    description: "Account's balance reinitialized",
+    description: 'Balance reinitialized',
     amount: isIncome ? diffAmount : -diffAmount
   }
 
-  const transactionDetailsRow = getTransactionDetailsRow(adjustedTransactionDetails)
+  const transactionDetailsRow = getTransactionDetailsRow(
+    adjustedTransactionDetails
+  )
 
   // Append a transaction row based on the difference amount
   appendTransactionRow(transactionDetailsRow)
@@ -147,7 +154,11 @@ const appendTransactionRow = (transaction: Transaction) => {
 }
 
 // Function to append row from a specific anchor cell
-const appendRow = (sheet: Sheet, anchorColumn: ColumnLetter, row: TransactionRow) => {
+const appendRow = (
+  sheet: Sheet,
+  anchorColumn: ColumnLetter,
+  row: TransactionRow
+) => {
   const firstEmptyRowNumber = getFirstEmptyRowNumber(sheet, anchorColumn)
 
   const columnLetters = getColumnLetters(sheet)
@@ -159,7 +170,9 @@ const appendRow = (sheet: Sheet, anchorColumn: ColumnLetter, row: TransactionRow
   }
 
   sheet
-    .getRange(`${anchorColumn}${firstEmptyRowNumber}:${lastColumn}${firstEmptyRowNumber}`)
+    .getRange(
+      `${anchorColumn}${firstEmptyRowNumber}:${lastColumn}${firstEmptyRowNumber}`
+    )
     .setValues([row])
 }
 
