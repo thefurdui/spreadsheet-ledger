@@ -1,6 +1,6 @@
-# Ledger
+# Spreadsheet Ledger
 
-Google Spreadsheet and Google Form Applications for a Budgeting App
+Google Spreadsheet and Google Form Applications for budgeting
 
 ## General Guidelines
 
